@@ -39,11 +39,10 @@ exports.fundWallet = async (req, res) => {
         const response = initiateTransfer.data.data
 
         res.status(200).json({
-            message: 'Transaction initialization successful',
+            message: 'Transaction initiated successfully',
             data: response
         })
     } catch (error) {
-        console.error('Error initializing transaction:', error)
         res.status(500).json({ 
             error: 'Internal server error' 
     })
@@ -53,12 +52,7 @@ exports.fundWallet = async (req, res) => {
 
 exports.callBackUrl = async (req, res) => {
     try {
-
-        // get the transaction details returned
-        // const { reference } = req.body
         const { reference } = req.query
-        console.log(req.query)
-        console.log("this is reference",reference)
 
         // verify the transaction
         const transaction = await axios.get(
@@ -73,7 +67,6 @@ exports.callBackUrl = async (req, res) => {
 
         // get the verification response
         const response = transaction.data
-        console.log(response)
 
         // check the transaction status
         if (response.status !== "true" && response.data.status !== "success") {
@@ -94,7 +87,7 @@ exports.callBackUrl = async (req, res) => {
         await user.save()
 
         res.status(200).json({
-            message: 'verification successful',
+            message: 'Successful',
             details: {
                 paymentDate: response.data.paid_at
             }
@@ -128,9 +121,8 @@ exports.getBanks = async (req, res) => {
             banks: filterBank
         })
     } catch (error) {
-        console.error('Error fetching bank list:', error.allAvailableBanks ? error.allAvailableBanks.data : error.message)
         return res.status(500).json({
-            error: error.message
+            error: "Internal server error"
         })
     }
 }
@@ -138,21 +130,17 @@ exports.getBanks = async (req, res) => {
 
 exports.bankDetails = async (req, res) => {
     try {
-        // get the user id
-        const { userId } = req.user
+        const  id  = req.user.userId
+        const { acctNumber, bankCode } = req.body
 
-        // find the user with the id
-        const user = await userModel.findById(userId)
+        const user = await userModel.findById(id)
         if (!user) {
             return res.status(404).json({
                 message: "user not found"
             })
         }
 
-        // get the bank details from the body
-        const { acctNumber, bankCode } = req.body
-
-        // validate the bank details with paystack
+        // validate the bank details
         const getBank = await axios.get(
             `https://api.paystack.co/bank/resolve?account_number=${acctNumber}&bank_code=${bankCode}`,
             {
@@ -163,14 +151,12 @@ exports.bankDetails = async (req, res) => {
             }
         )
 
-        console.log(getBank)
-        // get the response from the api
         const response = getBank.data.data
 
         const saveBankDetails = await bankModel.create({
             acctNumber,
             bankCode,
-            user: userId,
+            user: id,
             ref_code: response.recipient_code,
         })
 
@@ -178,34 +164,30 @@ exports.bankDetails = async (req, res) => {
         await user.save()
 
         res.status(200).json({
-            message: "bank details added successfully",
+            message: "Bank details added successfully",
             data: response,
             bank: saveBankDetails,
         })
 
     } catch (error) {
-        console.error('Error fetching bank list:', error.allAvailableBanks ? error.allAvailableBanks.data : error.message),
         res.status(500).json({
-            error: error.message
+            error: "Internal server error"
         })
     }
 }
 
+
 exports.withdrawfunds = async (req, res) => {
     try {
+        const id = req.user.userId
+        const { amount, ref } = req.body
 
-        // get the user's id
-        const userId = req.user.userId
-        // find the user
-        const user = await userModel.findById(userId)
+        const user = await userModel.findById(id)
         if (!user) {
             return res.status(404).json({
                 error: "user not found"
             })
         }
-
-        // get the users amount from the request body
-        const { amount, ref } = req.body
 
         // check if the user balance is eligible to make the withdraw
         if (user.acctBalance < amount) {
