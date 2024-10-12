@@ -10,9 +10,10 @@ const url = 'https://api.paystack.co/transaction/initialize'
 
 exports.fundWallet = async (req, res) => {
     try {
-        const { amount, email} = req.body
+        const id = req.user.userId
+        const { amount} = req.body
 
-        const user = await userModel.findOne({email})
+        const user = await userModel.findOne({ _id: id })
         if (!user) {
             return res.status(404).json({ 
                 error: 'User not found' 
@@ -22,7 +23,7 @@ exports.fundWallet = async (req, res) => {
         const initiateTransfer = await axios.post(
             url,
             {
-                email: email,
+                email: user.email,
                 amount: amount * 100,
                 metadata: {
                     user_id: user._id
@@ -54,8 +55,8 @@ exports.callBackUrl = async (req, res) => {
     try {
 
         // get the transaction details returned
-        const { reference } = req.query
-        // console.log(reference)
+        const { reference } = req.body
+        // const { reference } = req.query
 
         // verify the transaction
         const transaction = await axios.get(
@@ -132,6 +133,7 @@ exports.getBanks = async (req, res) => {
     }
 }
 
+
 exports.bankDetails = async (req, res) => {
     try {
         // get the user id
@@ -146,18 +148,11 @@ exports.bankDetails = async (req, res) => {
         }
 
         // get the bank details from the body
-        const { acctName, acctNumber, bankCode } = req.body
+        const { acctNumber, bankCode } = req.body
 
         // validate the bank details with paystack
-        const addBank = await axios.post(
-            'https://api.paystack.co/transferrecipient',
-            {
-                type: "nuban",
-                name: acctName,
-                account_number: acctNumber,
-                bank_code: bankCode,
-                currency: "NGN"
-            },
+        const getBank = await axios.get(
+            `https://api.paystack.co/bank/resolve?account_number=${acctNumber}&bank_code=${bankCode}`,
             {
                 headers: {
                     Authorization: `Bearer ${process.env.PAYSTACK_SECRET}`,
@@ -166,11 +161,11 @@ exports.bankDetails = async (req, res) => {
             }
         )
 
+        console.log(getBank)
         // get the response from the api
-        const response = addBank.data.data
+        const response = getBank.data.data
 
         const saveBankDetails = await bankModel.create({
-            acctName,
             acctNumber,
             bankCode,
             user: userId,
@@ -187,7 +182,7 @@ exports.bankDetails = async (req, res) => {
         })
 
     } catch (error) {
-        // console.error('Error fetching bank list:', error.allAvailableBanks ? error.allAvailableBanks.data : error.message),
+        console.error('Error fetching bank list:', error.allAvailableBanks ? error.allAvailableBanks.data : error.message),
         res.status(500).json({
             error: error.message
         })
