@@ -11,7 +11,7 @@ const authenticate = require("../auth/userAuth")
 
 
 router.post('/deposit', authenticate, fundWallet)
-router.post('/paystack/callback', callBackUrl)
+router.get('/paystack/callback', callBackUrl)
 router.get('/allbanks', authenticate, getBanks)
 router.get('/searchbank', authenticate, bankDetails)
 router.post('/withdrawfunds', authenticate, withdrawfunds)

@@ -57,6 +57,8 @@ exports.callBackUrl = async (req, res) => {
         // get the transaction details returned
         // const { reference } = req.body
         const { reference } = req.query
+        console.log(req.query)
+        console.log("this is reference",reference)
 
         // verify the transaction
         const transaction = await axios.get(
@@ -67,7 +69,7 @@ exports.callBackUrl = async (req, res) => {
                 }
             }
         )
-        // console.log(transaction)
+        console.log("response:",transaction)
 
         // get the verification response
         const response = transaction.data
