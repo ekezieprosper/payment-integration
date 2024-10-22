@@ -64,7 +64,7 @@ exports.signUp_user = async (req, res) =>{
 
     }catch(err){
         res.status(500).json({
-            message: err.message 
+            message: "Internal server error"
         })
     }
 
@@ -119,7 +119,7 @@ exports.logIn = async (req, res) => {
 
   } catch (err) {
     res.status(500).json({
-        message: err.message,
+        message: "Internal server error"
     })
   }
 }
@@ -162,7 +162,7 @@ exports.logOut = async (req, res) => {
         })
     } catch (error) {
         res.status(500).json({
-            error: error.message
+            error: "Internal server error"
         })
     }
 }
@@ -192,7 +192,7 @@ exports.getOne = async (req, res) =>{
 
     }catch(err){
         res.status(500).json({
-            message: err.message,
+            message: "Internal server error"
         })
     }
 }
@@ -221,7 +221,7 @@ exports.createTransactionPin = async(req, res)=>{
 
     } catch (error) {
         return res.status(500).json({
-            error: error.message
+            error: "Internal server error"
           })
     }
 }
@@ -269,7 +269,7 @@ exports.createProfileImg = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({
-            error: error.message
+            error: "Internal server error"
         })
     }
 }
@@ -293,7 +293,7 @@ exports.deleteProfileImg = async (req, res) => {
         res.status(200).json(user.profileImg)
     } catch (error) {
         res.status(500).json({
-            error: error.message
+            error: "Internal server error"
         })
     }
 }
@@ -342,7 +342,7 @@ exports.changePassword = async (req, res) => {
         })
     } catch (error) {
         res.status(500).json({
-            error: error.message
+            error: "Internal server error"
         })
     }
 }
@@ -387,7 +387,7 @@ exports.forgotPassword = async (req, res) => {
         })
     } catch (error) {
         return res.status(500).json({ 
-            error: error.message 
+            error: "Internal server error" 
         })
     }
 }
@@ -431,7 +431,7 @@ exports.resendRecoveryCode = async (req, res) => {
         })
     } catch (error) {
         res.status(500).json({
-            error: error.message
+            error: "Internal server error"
         })
     }
 }
@@ -474,7 +474,7 @@ exports.inpute_reset_code = async (req, res) => {
         })
     } catch (error) {
         return res.status(500).json({
-             error: error.message 
+             error: "Internal server error" 
         })
     }
 }
@@ -517,7 +517,7 @@ exports.resetPassword = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({
-            error: error.message
+            error: "Internal server error"
         })
     }
 }
